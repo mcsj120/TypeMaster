@@ -1,0 +1,63 @@
+<html>
+    <head></head>
+    <body>
+        <p>This is the text I need you to type.</p>
+        <input type="text"></input>
+        <p id="status"></p>
+        <script type="text/javascript">
+            var state = document.getElementById("status")
+            var text = document.querySelector("input")
+            var startTime 
+            var wsUri = "ws://127.0.0.1:8080";
+            websocket = new WebSocket(wsUri);
+            websocket.onopen = function(evt) { onOpen(evt) };
+            websocket.onclose = function(evt) { onClose(evt) };
+            websocket.onmessage = function(evt) { onMessage(evt) };
+            websocket.onerror = function(evt) { onError(evt) };
+
+            function onOpen(evt) {
+                state.className = "success";
+                state.innerHTML = "Connected to server";
+                startTime = Date.now()
+            }
+                
+            function onClose(evt) {
+                state.className = "fail";
+                state.innerHTML = "Not connected";
+                connected.innerHTML = "0";
+            }
+
+            function onError(evt) {
+                state.className = "fail";
+                state.innerHTML = "Communication error";
+            }
+
+            function onMessage(evt){
+                if(evt.data == "complete"){ 
+                    time = ((Date.now() - startTime) / 1000)
+                    state.textContent = "Completed! Time: " + time + " seconds\nWPM: " + ((9 * 60)/time).toFixed(2)
+                    text.value = ""
+                } else if(evt.data == "true"){
+                    //If the user has entered in input after it has sent it to the websocket and before the websocket
+                    //can respond, this will prevent it from getting deleted
+                    text.value = text.value.split(" ").slice(1).join(" ")
+                }
+            }
+
+            var passage = document.querySelector("p").textContent
+            const d = Date.now()
+            let func = (event) => {
+                var innerText = event.srcElement.value
+                websocket.send(innerText)
+            }
+            let func2 = (event) => {
+                if(event.keyCode == 32 || event.keyCode == 11){
+                    var innerText = text.value
+                    websocket.send(innerText)
+                }
+            }
+            document.addEventListener('keydown', func2)
+            //text.addEventListener("change", func)
+        </script>
+    </body>
+</html>
