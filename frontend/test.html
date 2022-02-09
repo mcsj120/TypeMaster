@@ -8,7 +8,7 @@
             var state = document.getElementById("status")
             var text = document.querySelector("input")
             var startTime 
-            var wsUri = "ws://127.0.0.1:8080";
+            var wsUri = "ws://127.0.0.1:8080/ws";
             websocket = new WebSocket(wsUri);
             websocket.onopen = function(evt) { onOpen(evt) };
             websocket.onclose = function(evt) { onClose(evt) };
@@ -17,19 +17,18 @@
 
             function onOpen(evt) {
                 state.className = "success";
-                state.innerHTML = "Connected to server";
+                state.textContent = "Connected to server";
                 startTime = Date.now()
             }
                 
             function onClose(evt) {
                 state.className = "fail";
-                state.innerHTML = "Not connected";
-                connected.innerHTML = "0";
+                state.textContent = "Not connected";
             }
 
             function onError(evt) {
                 state.className = "fail";
-                state.innerHTML = "Communication error";
+                state.textContent = "Communication error";
             }
 
             function onMessage(evt){
@@ -44,7 +43,6 @@
                 }
             }
 
-            var passage = document.querySelector("p").textContent
             const d = Date.now()
             let func = (event) => {
                 var innerText = event.srcElement.value

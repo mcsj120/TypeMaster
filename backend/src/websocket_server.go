@@ -1,11 +1,14 @@
 package main
 
 import (
+	next "backend/src/nextHandler"
 	"fmt"
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 )
 
@@ -23,9 +26,25 @@ func Server_Init() {
 }
 
 func server() {
-	port := 8080
-	http.HandleFunc("/", handler)
-	http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+	router := mux.NewRouter()
+
+	nextFS, err := next.GetNextFs()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	router.HandleFunc("/ws", handler)
+	router.PathPrefix("/").Handler(http.FileServer(http.FS(nextFS)))
+
+	srv := &http.Server{
+		Handler: router,
+		Addr:    "0.0.0.0:8080",
+		// Good practice: enforce timeouts for servers you create!
+		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  15 * time.Second,
+	}
+
+	srv.ListenAndServe()
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -38,7 +57,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Upgraded and connected")
 	message := []byte("Hello")
 	conn.WriteMessage(websocket.TextMessage, message)
-	task := getTask(RandomString())
+	task := GetTask(RandomString())
 	for {
 		messageType, p, err := conn.ReadMessage()
 		if err != nil {

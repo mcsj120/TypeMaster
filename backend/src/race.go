@@ -10,7 +10,7 @@ type Task struct {
 
 var incr int = 1
 
-func getTask(passage string) *Task {
+func GetTask(passage string) *Task {
 	incr = incr + 1
 	task := new(Task)
 	task.setValues(passage)
