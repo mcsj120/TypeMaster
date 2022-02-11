@@ -34,7 +34,7 @@ func server() {
 	}
 
 	router.HandleFunc("/ws", handler)
-	router.PathPrefix("/").Handler(http.FileServer(http.FS(nextFS)))
+	router.PathPrefix("/").Handler(http.FileServer(http.FS(nextFS))).Methods("GET")
 
 	srv := &http.Server{
 		Handler: router,
@@ -47,8 +47,8 @@ func server() {
 	srv.ListenAndServe()
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	conn, err := wsupgrader.Upgrade(w, r, nil)
+func handler(w http.ResponseWriter, request *http.Request) {
+	conn, err := wsupgrader.Upgrade(w, request, nil)
 	if err != nil {
 		log.Print(err)
 		return

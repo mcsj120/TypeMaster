@@ -5,6 +5,7 @@ function Foo(): JSX.Element {
 
     const [connection, setConnection] = useState<WebSocket>()
     const [text, setText] = useState("Connecting")
+    const [readyForInput, setReadyForInput] = useState<boolean>(false)
 
     useEffect(()=>{
         const wsUri = "ws://127.0.0.1:8080/ws";
@@ -19,6 +20,7 @@ function Foo(): JSX.Element {
             connection.onopen = (_evt) => {
                 setText("Connected to server");
                 startTime = Date.now()
+                setReadyForInput(true)
             }
 
             connection.onclose = (_evt) => {
@@ -32,6 +34,7 @@ function Foo(): JSX.Element {
                     if(userInput != null){
                         userInput.value = ""
                     }
+                    setReadyForInput(false)
                 } else if(evt.data == "true"){
                     //If the user has entered in input after it has sent it to the websocket and before the websocket
                     //can respond, this will prevent it from getting deleted
@@ -63,7 +66,7 @@ function Foo(): JSX.Element {
         This is <code>pages/foo/index.tsx</code>.
       </p>
       <p>This is the text I need you to type.</p>
-        <input type="text"></input>
+        <input type="text" readOnly={!readyForInput}></input>
       <p id="status">{text}</p>
       <p>
         Check out <Link href="/foo/bar">bar</Link>.
