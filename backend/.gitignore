@@ -1,1 +1,5 @@
 nextHandler/dist/
+secrets.json
+*.exe
+main
+main.exe
